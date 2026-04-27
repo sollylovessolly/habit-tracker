@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Habit } from '@/types/habit'
 import { validateHabitName } from '@/lib/validators'
+import { useTheme } from '@/lib/ThemeContext'
 
 type Props = {
   onSave: (name: string, description: string) => void
@@ -11,6 +12,7 @@ type Props = {
 }
 
 export default function HabitForm({ onSave, onCancel, existing }: Props) {
+  const { dark } = useTheme()
   const [name, setName] = useState(existing?.name ?? '')
   const [description, setDescription] = useState(existing?.description ?? '')
   const [error, setError] = useState('')
@@ -25,28 +27,33 @@ export default function HabitForm({ onSave, onCancel, existing }: Props) {
     onSave(result.value, description.trim())
   }
 
+  const inputClass = `w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 border ${
+    dark
+      ? 'bg-pink-950 border-pink-700 text-white placeholder-pink-400 focus:ring-pink-400'
+      : 'bg-white border-rose-300 text-gray-800 placeholder-gray-400 focus:ring-rose-400'
+  }`
+
   return (
     <div
       data-testid="habit-form"
-      className="bg-white rounded-2xl shadow p-6 mb-4"
+      className={`rounded-2xl shadow p-4 mb-4 w-full ${
+        dark ? 'bg-[#b04a61]' : 'bg-white border border-rose-200'
+      }`}
     >
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
+      <h3 className={`text-lg font-semibold mb-4 ${dark ? 'text-red-100' : 'text-gray-800'}`}>
         {existing ? 'Edit Habit' : 'New Habit'}
       </h3>
 
       {error && (
-        <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
+        <p className="mb-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
           {error}
         </p>
       )}
 
       <div className="space-y-3">
         <div>
-          <label
-            htmlFor="habit-name"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Habit name <span className="text-red-500">*</span>
+          <label htmlFor="habit-name" className={`block text-sm font-medium mb-1 ${dark ? 'text-white' : 'text-gray-700'}`}>
+            Habit name <span className="text-red-400">*</span>
           </label>
           <input
             id="habit-name"
@@ -55,15 +62,12 @@ export default function HabitForm({ onSave, onCancel, existing }: Props) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Drink Water"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className={inputClass}
           />
         </div>
 
         <div>
-          <label
-            htmlFor="habit-description"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
+          <label htmlFor="habit-description" className={`block text-sm font-medium mb-1 ${dark ? 'text-white' : 'text-gray-700'}`}>
             Description
           </label>
           <input
@@ -73,40 +77,45 @@ export default function HabitForm({ onSave, onCancel, existing }: Props) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Optional"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className={inputClass}
           />
         </div>
 
         <div>
-          <label
-            htmlFor="habit-frequency"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
+          <label htmlFor="habit-frequency" className={`block text-sm font-medium mb-1 ${dark ? 'text-white' : 'text-gray-700'}`}>
             Frequency
           </label>
           <select
             id="habit-frequency"
             data-testid="habit-frequency-select"
             defaultValue="daily"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className={inputClass}
           >
             <option value="daily">Daily</option>
           </select>
         </div>
 
-        <div className="flex gap-2 pt-1">
+        <div className="flex gap-2 pt-1 w-full">
           <button
             type="button"
             data-testid="habit-save-button"
             onClick={handleSave}
-            className="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            className={`flex-1 min-w-0 py-2 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 transition ${
+              dark
+                ? 'bg-pink-700 text-white hover:bg-pink-600 focus:ring-pink-400'
+                : 'bg-rose-500 text-white hover:bg-rose-600 focus:ring-rose-400'
+            }`}
           >
             Save
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
+            className={`flex-1 min-w-0 py-2 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 transition ${
+              dark
+                ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 focus:ring-gray-400'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-300'
+            }`}
           >
             Cancel
           </button>
