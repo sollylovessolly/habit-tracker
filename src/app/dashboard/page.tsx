@@ -76,7 +76,6 @@ export default function DashboardPage() {
     <AppShell email={userEmail}>
       <div data-testid="dashboard-page">
 
-        {/* Header row */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-800">My Habits</h2>
@@ -96,7 +95,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Forms */}
+
         {showForm && (
           <HabitForm onSave={handleCreate} onCancel={() => setShowForm(false)} />
         )}
@@ -108,7 +107,7 @@ export default function DashboardPage() {
           />
         )}
 
-        {/* Habits list */}
+
         {habits.length === 0 ? (
           <div
             data-testid="empty-state"

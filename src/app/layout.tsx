@@ -1,12 +1,10 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Habit Tracker',
   description: 'Track your daily habits',
+  manifest: '/manifest.json',
 }
 
 export default function RootLayout({
@@ -16,7 +14,24 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <head>
+        <meta name="theme-color" content="#4f46e5" />
+        <link rel="manifest" href="/manifest.json" />
+      </head>
+      <body>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js')
+                })
+              }
+            `,
+          }}
+        />
+        {children}
+      </body>
     </html>
   )
 }

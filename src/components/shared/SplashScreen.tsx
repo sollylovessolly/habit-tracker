@@ -2,7 +2,7 @@ export default function SplashScreen() {
   return (
     <div
       data-testid="splash-screen"
-      className="min-h-screen flex flex-col items-center justify-center bg-indigo-600"
+      className="min-h-screen flex flex-col items-center justify-center bg-red-800"
       style={{ animation: 'fadeIn 0.5s ease-in' }}
     >
       <style>{`
@@ -28,8 +28,8 @@ export default function SplashScreen() {
       `}</style>
 
       <div className="text-center">
-        <p className="text-6xl mb-4" style={{ animation: 'fadeIn 0.4s ease-out' }}>
-          🔥
+        <p className="text-6xl mb-4" style={{ animation: 'fadeIn 1s ease-out' }}>
+          ⭐
         </p>
         <h1 className="app-title text-4xl font-bold text-white tracking-tight">
           Habit Tracker

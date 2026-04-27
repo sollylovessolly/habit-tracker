@@ -16,7 +16,7 @@ export default function Home() {
       } else {
         router.push('/login')
       }
-    }, 1000) // 1 second — within the 800-2000ms window
+    }, 1000) 
 
     return () => clearTimeout(timer)
   }, [router])
