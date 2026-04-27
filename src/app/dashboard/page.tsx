@@ -7,16 +7,17 @@ import { Habit } from '@/types/habit'
 import HabitList from '@/components/habits/HabitList'
 import HabitForm from '@/components/habits/HabitForm'
 import AppShell from '@/components/shared/AppShell'
-import { ThemeProvider, useTheme } from '@/lib/ThemeContext'
+import { useTheme } from '@/lib/ThemeContext'
 
-function Dashboard() {
+export default function DashboardPage() {
   const router = useRouter()
   const { dark } = useTheme()
   const [habits, setHabits] = useState<Habit[]>([])
   const [userEmail, setUserEmail] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
-  const [ready, setReady] = useState(false)
+  const [sessionChecked, setSessionChecked] = useState(false)
+  const [authed, setAuthed] = useState(false)
 
   useEffect(() => {
     const session = getSession()
@@ -28,7 +29,8 @@ function Dashboard() {
     const allHabits = getHabits()
     const myHabits = allHabits.filter((h) => h.userId === session.userId)
     setHabits(myHabits)
-    setReady(true)
+    setAuthed(true)
+    setSessionChecked(true)
   }, [router])
 
   function handleCreate(name: string, description: string) {
@@ -70,11 +72,15 @@ function Dashboard() {
     setHabits((prev) => prev.filter((h) => h.id !== id))
   }
 
-  if (!ready) return (
+  // Show nothing while checking session (very brief)
+  if (!sessionChecked) return (
     <div className={`min-h-screen flex items-center justify-center ${dark ? 'bg-[#32000c]' : 'bg-rose-50'}`}>
-      <p className="text-pink-400 text-sm animate-pulse">Loading...</p>
+      <div className={`w-6 h-6 rounded-full border-2 border-t-transparent animate-spin ${dark ? 'border-pink-400' : 'border-rose-400'}`} />
     </div>
   )
+
+  // Session was checked but no auth — redirect already happening
+  if (!authed) return null
 
   return (
     <AppShell email={userEmail}>
@@ -83,7 +89,7 @@ function Dashboard() {
         {/* Header row */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className={`font-bold text-2xl sm:text-3xl py-3 ${dark ? 'text-rose-400' : 'text-rose-800'}`}>
+            <h2 className={`font-bold text-2xl sm:text-3xl py-3 ${dark ? 'text-pink-200' : 'text-rose-800'}`}>
               MY HABITS
             </h2>
             <p className={`text-sm mt-0.5 ${dark ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -146,13 +152,5 @@ function Dashboard() {
 
       </div>
     </AppShell>
-  )
-}
-
-export default function DashboardPage() {
-  return (
-    <ThemeProvider>
-      <Dashboard />
-    </ThemeProvider>
   )
 }

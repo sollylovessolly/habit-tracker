@@ -36,8 +36,8 @@ export default function SignupForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#32000c] px-4 border-2 ">
-      <div className="w-full max-w-sm bg-[#b04a61] rounded-2xl shadow p-8 border-red-200" >
+    <div className="min-h-screen flex items-center justify-center bg-[#32000c] px-4  ">
+      <div className="w-full max-w-sm bg-[#b04a61] rounded-2xl shadow p-8 border-2 border-red-50" >
         <h2 className="text-2xl font-bold text-red-100 mb-6">Create account</h2>
 
         {error && (
