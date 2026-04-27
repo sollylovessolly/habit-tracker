@@ -20,7 +20,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#4f46e5" />
         <link rel="manifest" href="/manifest.json" />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <script
           dangerouslySetInnerHTML={{
             __html: `
