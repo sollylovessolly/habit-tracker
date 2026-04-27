@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getUsers, saveUsers, saveSession } from '@/lib/storage'
+import { signupUser } from '@/lib/auth'
 
 export default function SignupForm() {
   const router = useRouter()
@@ -13,24 +13,11 @@ export default function SignupForm() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
-
-    const users = getUsers()
-    const exists = users.find((u) => u.email === email)
-
-    if (exists) {
-      setError('User already exists')
+    const result = signupUser(email, password)
+    if (!result.success) {
+      setError(result.error!)
       return
     }
-
-    const newUser = {
-      id: crypto.randomUUID(),
-      email,
-      password,
-      createdAt: new Date().toISOString(),
-    }
-
-    saveUsers([...users, newUser])
-    saveSession({ userId: newUser.id, email: newUser.email })
     router.push('/dashboard')
   }
 
@@ -38,19 +25,14 @@ export default function SignupForm() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm bg-white rounded-2xl shadow p-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Create account</h2>
-
         {error && (
           <p className="mb-4 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
             {error}
           </p>
         )}
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label
-              htmlFor="signup-email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
             <input
@@ -63,12 +45,8 @@ export default function SignupForm() {
               required
             />
           </div>
-
           <div>
-            <label
-              htmlFor="signup-password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700 mb-1">
               Password
             </label>
             <input
@@ -81,7 +59,6 @@ export default function SignupForm() {
               required
             />
           </div>
-
           <button
             type="submit"
             data-testid="auth-signup-submit"
@@ -90,12 +67,9 @@ export default function SignupForm() {
             Sign up
           </button>
         </form>
-
         <p className="mt-4 text-sm text-center text-gray-500">
           Already have an account?{' '}
-          <a href="/login" className="text-indigo-600 hover:underline">
-            Log in
-          </a>
+          <a href="/login" className="text-indigo-600 hover:underline">Log in</a>
         </p>
       </div>
     </div>
