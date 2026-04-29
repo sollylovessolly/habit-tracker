@@ -152,11 +152,34 @@ export default function AppShell({ email, children, activeSection = 'habits', on
             ? 'bg-pink-950 border-red-900'
             : 'bg-white border-rose-200'
         }`}>
-          <div className="px-4 py-3 flex items-center justify-between">
-            <h1 className={`text-lg font-bold ${dark ? 'text-white' : 'text-rose-700'}`}>
-              Habit Tracker
+          <div className="px-4 py-3 flex items-center justify-between gap-3">
+            <h1 className={`shrink-0
+              
+              text-2xl font-bold ${dark ? 'text-white' : 'text-rose-700'}`}>
+              ⭐
             </h1>
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <label htmlFor="mobile-section-menu" className="sr-only">
+                Choose dashboard section
+              </label>
+              <select
+                id="mobile-section-menu"
+                data-testid="mobile-nav-select"
+                value={activeSection}
+                onChange={(event) => onNavigate?.(event.target.value as ShellSection)}
+                className={`min-w-0 max-w-20 cursor-pointer rounded-md border px-1 py-1.5 text-xs font-xs focus:outline-none focus:ring-2 ${
+                  dark
+                    ? 'border-pink-700 bg-pink-900 text-pink-100 focus:ring-pink-500'
+                    : 'border-rose-200 bg-rose-50 text-rose-800 focus:ring-rose-300'
+                }`}
+                aria-label="Dashboard section"
+              >
+                {navItems.map(({ id, label }) => (
+                  <option key={id} value={id}>
+                    {label}
+                  </option>
+                ))}
+              </select>
               <button
                 type="button"
                 onClick={toggleTheme}
@@ -173,9 +196,6 @@ export default function AppShell({ email, children, activeSection = 'habits', on
                 />
               </button>
               <div className='border h-8'></div>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${dark ? 'bg-pink-600' : 'bg-rose-500'}`}>
-                {avatar}
-              </div>
               <button
                 type="button"
                 data-testid="auth-logout-button"

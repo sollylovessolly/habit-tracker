@@ -17,6 +17,16 @@ const sectionTitle: Record<ShellSection, string> = {
   settings: 'SETTINGS',
 }
 
+const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+function getDateKey(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
 export default function DashboardPage() {
   const router = useRouter()
   const { dark } = useTheme()
@@ -25,6 +35,7 @@ export default function DashboardPage() {
   const [showForm, setShowForm] = useState(false)
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
   const [activeSection, setActiveSection] = useState<ShellSection>('habits')
+  const [calendarDate, setCalendarDate] = useState(() => new Date())
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
@@ -93,9 +104,33 @@ export default function DashboardPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const today = new Date().toISOString().split('T')[0]
+  const today = getDateKey(new Date())
   const completedToday = habits.filter((habit) => habit.completions.includes(today)).length
   const totalCompletions = habits.reduce((count, habit) => count + habit.completions.length, 0)
+  const calendarYear = calendarDate.getFullYear()
+  const calendarMonth = calendarDate.getMonth()
+  const firstDayOfMonth = new Date(calendarYear, calendarMonth, 1)
+  const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate()
+  const monthLabel = calendarDate.toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  })
+  const calendarDays = Array.from({ length: daysInMonth }, (_, index) => {
+    const date = new Date(calendarYear, calendarMonth, index + 1)
+    const key = getDateKey(date)
+    const completions = habits.filter((habit) => habit.completions.includes(key)).length
+
+    return {
+      date,
+      key,
+      completions,
+      isToday: key === today,
+    }
+  })
+
+  function changeCalendarMonth(offset: number) {
+    setCalendarDate((current) => new Date(current.getFullYear(), current.getMonth() + offset, 1))
+  }
 
   const panelClass = `rounded-2xl p-5 shadow border ${
     dark ? 'bg-pink-900 border-pink-800 text-pink-100' : 'bg-white border-rose-100 text-gray-800'
@@ -233,36 +268,84 @@ export default function DashboardPage() {
 
         {activeSection === 'calendar' && (
           <section data-testid="calendar-section" className={panelClass} aria-label="Completion calendar">
-            <div className="grid grid-cols-7 gap-2 text-center text-xs">
-              {Array.from({ length: 14 }, (_, index) => {
-                const date = new Date()
-                date.setDate(date.getDate() - (13 - index))
-                const key = date.toISOString().split('T')[0]
-                const dayCompletions = habits.filter((habit) => habit.completions.includes(key)).length
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => changeCalendarMonth(-1)}
+                className={`h-9 w-9 rounded-lg border text-lg font-bold transition focus:outline-none focus:ring-2 ${
+                  dark
+                    ? 'border-pink-700 text-pink-100 hover:bg-pink-800 focus:ring-pink-500'
+                    : 'border-rose-200 text-rose-700 hover:bg-rose-50 focus:ring-rose-300'
+                }`}
+                aria-label="Previous month"
+              >
+                &lt;
+              </button>
+              <h3 className="text-base font-bold" data-testid="calendar-month">
+                {monthLabel}
+              </h3>
+              <button
+                type="button"
+                onClick={() => changeCalendarMonth(1)}
+                className={`h-9 w-9 rounded-lg border text-lg font-bold transition focus:outline-none focus:ring-2 ${
+                  dark
+                    ? 'border-pink-700 text-pink-100 hover:bg-pink-800 focus:ring-pink-500'
+                    : 'border-rose-200 text-rose-700 hover:bg-rose-50 focus:ring-rose-300'
+                }`}
+                aria-label="Next month"
+              >
+                &gt;
+              </button>
+            </div>
 
-                return (
-                  <div
-                    key={key}
-                    className={`rounded-lg p-2 border ${dayCompletions > 0
+            <div className="grid grid-cols-7 gap-1.5 text-center text-xs sm:gap-2">
+              {weekDays.map((day) => (
+                <div key={day} className={`py-1 font-bold ${dark ? 'text-pink-200' : 'text-rose-700'}`}>
+                  {day}
+                </div>
+              ))}
+
+              {Array.from({ length: firstDayOfMonth.getDay() }, (_, index) => (
+                <div key={`empty-${index}`} aria-hidden="true" />
+              ))}
+
+              {calendarDays.map(({ date, key, completions, isToday }) => (
+                <div
+                  key={key}
+                  data-testid={`calendar-day-${key}`}
+                  className={`min-h-16 rounded-lg border p-1.5 text-left transition sm:min-h-20 sm:p-2 ${
+                    completions > 0
                       ? dark ? 'bg-pink-700 border-pink-500' : 'bg-rose-100 border-rose-300'
-                      : dark ? 'border-pink-800' : 'border-rose-100'
-                    }`}
-                    aria-label={`${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}: ${dayCompletions} completions`}
-                  >
-                    <p>{date.getDate()}</p>
-                    <p className="font-bold">{dayCompletions}</p>
+                      : dark ? 'border-pink-800 bg-pink-950/40' : 'border-rose-100 bg-rose-50/50'
+                  } ${isToday ? dark ? 'ring-2 ring-pink-300' : 'ring-2 ring-rose-400' : ''}`}
+                  aria-label={`${date.toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}: ${completions} completions`}
+                >
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="font-bold">{date.getDate()}</span>
+                    {isToday && (
+                      <span className={`rounded px-1 text-[10px] font-bold ${dark ? 'bg-pink-200 text-pink-950' : 'bg-rose-500 text-white'}`}>
+                        Today
+                      </span>
+                    )}
                   </div>
-                )
-              })}
+                  <p className={`mt-2 text-[11px] font-semibold ${completions > 0 ? '' : 'opacity-60'}`}>
+                    {completions} done
+                  </p>
+                </div>
+              ))}
             </div>
           </section>
         )}
 
         {activeSection === 'settings' && (
           <section data-testid="settings-section" className={panelClass} aria-label="Settings">
-            <p className="font-semibold">Preferences</p>
+            <p className="font-semibold">settings</p>
             <p className="mt-2 text-sm opacity-75">
-              Theme switching and logout are available in the sidebar. Habit data is saved locally in this browser.
+              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tenetur, ipsa. Ut deleniti quidem optio animi? Dicta quo asperiores cupiditate placeat aut quod ex, fugit officia. 
             </p>
           </section>
         )}
