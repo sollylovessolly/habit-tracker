@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, startTransition, useContext, useEffect, useState } from 'react'
 
 type ThemeContextType = {
   dark: boolean
@@ -21,7 +21,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const saved = localStorage.getItem('habit-tracker-theme')
-    if (saved === 'dark') setDark(true)
+    if (saved === 'dark') {
+      startTransition(() => setDark(true))
+    }
   }, [])
 
   function toggleTheme() {

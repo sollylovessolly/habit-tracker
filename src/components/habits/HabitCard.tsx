@@ -39,24 +39,36 @@ export default function HabitCard({ habit, onUpdate, onEdit, onDelete }: Props) 
             onClick={() => setConfirmDelete(false)}
           />
           {/* Modal */}
-          <div className={`relative z-10 w-full max-w-sm rounded-2xl shadow-2xl p-6 ${
-            dark ? 'bg-gray-900 border border-gray-700' : 'bg-white border border-rose-100'
-          }`}>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`delete-habit-title-${habit.id}`}
+            aria-describedby={`delete-habit-description-${habit.id}`}
+            className={`relative z-10 w-full max-w-sm rounded-2xl shadow-2xl p-6 ${
+              dark ? 'bg-gray-900 border border-gray-700' : 'bg-white border border-rose-100'
+            }`}
+          >
             
-            <h3 className={`text-lg font-bold text-center mb-1 ${dark ? 'text-white' : 'text-gray-800'}`}>
+            <h3
+              id={`delete-habit-title-${habit.id}`}
+              className={`text-lg font-bold text-center mb-1 ${dark ? 'text-white' : 'text-gray-800'}`}
+            >
               Delete habit?
             </h3>
-            <p className={`text-sm text-center mb-6 ${dark ? 'text-gray-400' : 'text-gray-500'}`}>
+            <p
+              id={`delete-habit-description-${habit.id}`}
+              className={`text-sm text-center mb-6 ${dark ? 'text-gray-400' : 'text-gray-500'}`}
+            >
               &quot;{habit.name}&quot; will be permanently deleted.
             </p>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setConfirmDelete(false)}
-                className={`flex-1 py-2 rounded-lg text-sm font-medium transition focus:outline-none ${
+                className={`flex-1 cursor-pointer py-2 rounded-lg text-sm font-medium transition focus:outline-none focus:ring-2 ${
                   dark
-                    ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 focus:ring-gray-500'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-400'
                 }`}
               >
                 Cancel
@@ -65,7 +77,7 @@ export default function HabitCard({ habit, onUpdate, onEdit, onDelete }: Props) 
                 type="button"
                 data-testid="confirm-delete-button"
                 onClick={() => { setConfirmDelete(false); onDelete(habit.id) }}
-                className="flex-1 py-2 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 transition focus:outline-none"
+                className="flex-1 cursor-pointer py-2 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 transition focus:outline-none focus:ring-2 focus:ring-red-400"
               >
                 Yes, delete
               </button>
@@ -103,7 +115,7 @@ export default function HabitCard({ habit, onUpdate, onEdit, onDelete }: Props) 
                   ⭐ {streak} day streak
                 </span>
               ) : (
-                <span className="text-orange-400 font-bold">💫 Complete today!</span>
+                <span className="text-orange-400 font-bold">Complete today!</span>
               )}
             </p>
           </div>
@@ -112,7 +124,7 @@ export default function HabitCard({ habit, onUpdate, onEdit, onDelete }: Props) 
             type="button"
             data-testid={`habit-complete-${slug}`}
             onClick={handleToggle}
-            className={`shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center text-lg focus:outline-none focus:ring-2 transition ${
+            className={`shrink-0 w-9 h-9 cursor-pointer rounded-full border-2 flex items-center justify-center text-lg focus:outline-none focus:ring-2 transition ${
               isCompleted
                 ? dark ? 'bg-red-900 border-red-300 text-white focus:ring-red-400'
                         : 'bg-rose-500 border-rose-300 text-white focus:ring-rose-400'
@@ -130,10 +142,10 @@ export default function HabitCard({ habit, onUpdate, onEdit, onDelete }: Props) 
             type="button"
             data-testid={`habit-edit-${slug}`}
             onClick={() => onEdit(habit)}
-            className={`text-xs px-3 py-1.5 rounded-xl border transition focus:outline-none ${
+            className={`cursor-pointer text-xs px-3 py-1.5 rounded-xl border transition focus:outline-none focus:ring-2 ${
               dark
-                ? 'text-pink-300 border-pink-700 bg-pink-950 hover:bg-pink-800'
-                : 'text-rose-600 border-rose-300 bg-rose-50 hover:bg-rose-100'
+                ? 'text-pink-300 border-pink-700 bg-pink-950 hover:bg-pink-800 focus:ring-pink-500'
+                : 'text-rose-600 border-rose-300 bg-rose-50 hover:bg-rose-100 focus:ring-rose-400'
             }`}
           >
             Edit
@@ -142,10 +154,10 @@ export default function HabitCard({ habit, onUpdate, onEdit, onDelete }: Props) 
             type="button"
             data-testid={`habit-delete-${slug}`}
             onClick={() => setConfirmDelete(true)}
-            className={`text-xs px-3 py-1.5 rounded-xl border transition focus:outline-none ${
+            className={`cursor-pointer text-xs px-3 py-1.5 rounded-xl border transition focus:outline-none focus:ring-2 ${
               dark
-                ? 'text-pink-300 border-pink-700 bg-pink-950 hover:text-red-400 hover:bg-red-950'
-                : 'text-rose-600 border-rose-300 bg-rose-50 hover:text-red-500 hover:bg-red-50'
+                ? 'text-pink-300 border-pink-700 bg-pink-950 hover:text-red-400 hover:bg-red-950 focus:ring-pink-500'
+                : 'text-rose-600 border-rose-300 bg-rose-50 hover:text-red-500 hover:bg-red-50 focus:ring-rose-400'
             }`}
           >
             Delete

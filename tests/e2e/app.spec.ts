@@ -44,6 +44,21 @@ test.describe('Habit Tracker app', () => {
     await expect(page.getByTestId('dashboard-page')).toBeVisible()
   })
 
+  test('redirects authenticated users away from /login and /signup', async ({ page }) => {
+    await page.evaluate(() => {
+      localStorage.setItem('habit-tracker-session', JSON.stringify({
+        userId: 'u1',
+        email: 'test@example.com',
+      }))
+    })
+
+    await page.goto('http://localhost:3000/login')
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 5000 })
+
+    await page.goto('http://localhost:3000/signup')
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 5000 })
+  })
+
   test('logs in an existing user and loads only that user\'s habits', async ({ page }) => {
     // Setup user and habits in localStorage
     await page.evaluate(() => {
@@ -142,6 +157,38 @@ test.describe('Habit Tracker app', () => {
     await page.goto('http://localhost:3000/dashboard')
     await page.getByTestId('auth-logout-button').first().click()
     await expect(page).toHaveURL(/\/login/, { timeout: 5000 })
+  })
+
+  test('opens dashboard sidebar sections', async ({ page }) => {
+    await page.evaluate(() => {
+      localStorage.setItem('habit-tracker-session', JSON.stringify({
+        userId: 'u1',
+        email: 'test@example.com',
+      }))
+      localStorage.setItem('habit-tracker-habits', JSON.stringify([{
+        id: 'h1',
+        userId: 'u1',
+        name: 'Drink Water',
+        description: '',
+        frequency: 'daily',
+        createdAt: new Date().toISOString(),
+        completions: [new Date().toISOString().split('T')[0]],
+      }]))
+    })
+
+    await page.goto('http://localhost:3000/dashboard')
+
+    await page.getByTestId('nav-profile').click()
+    await expect(page.getByTestId('profile-section')).toBeVisible()
+
+    await page.getByTestId('nav-stats').click()
+    await expect(page.getByTestId('stats-section')).toContainText('Completed today')
+
+    await page.getByTestId('nav-calendar').click()
+    await expect(page.getByTestId('calendar-section')).toBeVisible()
+
+    await page.getByTestId('nav-settings').click()
+    await expect(page.getByTestId('settings-section')).toBeVisible()
   })
 
   test('loads the cached app shell when offline after the app has been loaded once', async ({ page, context }) => {

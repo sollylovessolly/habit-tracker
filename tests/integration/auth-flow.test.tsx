@@ -3,15 +3,16 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import LoginForm from '@/components/auth/LoginForm'
 import SignupForm from '@/components/auth/SignupForm'
 
-
 const pushMock = vi.fn()
+const replaceMock = vi.fn()
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: pushMock }),
+  useRouter: () => ({ push: pushMock, replace: replaceMock }),
 }))
 
 beforeEach(() => {
   localStorage.clear()
   pushMock.mockClear()
+  replaceMock.mockClear()
 })
 
 describe('auth flow', () => {
@@ -32,7 +33,7 @@ describe('auth flow', () => {
       expect(session.email).toBe('test@example.com')
     })
 
-    expect(pushMock).toHaveBeenCalledWith('/dashboard')
+    expect(replaceMock).toHaveBeenCalledWith('/dashboard')
   })
 
   it('shows an error for duplicate signup email', async () => {
@@ -93,7 +94,7 @@ describe('auth flow', () => {
       expect(session.email).toBe('test@example.com')
     })
 
-    expect(pushMock).toHaveBeenCalledWith('/dashboard')
+    expect(replaceMock).toHaveBeenCalledWith('/dashboard')
   })
 
   it('shows an error for invalid login credentials', async () => {
@@ -109,6 +110,32 @@ describe('auth flow', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Invalid email or password')).toBeInTheDocument()
+    })
+  })
+
+  it('redirects logged-in users away from the login page', async () => {
+    localStorage.setItem(
+      'habit-tracker-session',
+      JSON.stringify({ userId: '1', email: 'test@example.com' })
+    )
+
+    render(<LoginForm />)
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/dashboard')
+    })
+  })
+
+  it('redirects logged-in users away from the signup page', async () => {
+    localStorage.setItem(
+      'habit-tracker-session',
+      JSON.stringify({ userId: '1', email: 'test@example.com' })
+    )
+
+    render(<SignupForm />)
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/dashboard')
     })
   })
 })

@@ -29,7 +29,7 @@ self.addEventListener('activate', (event) => {
 })
 
 self.addEventListener('fetch', (event) => {
-  // Never intercept navigation to / — let Next.js handle the redirect
+  // Never intercept navigation to / - let Next.js handle the redirect
   if (event.request.mode === 'navigate' && 
       new URL(event.request.url).pathname === '/') {
     return

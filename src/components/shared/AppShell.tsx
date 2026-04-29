@@ -8,17 +8,29 @@ import { useTheme } from '@/lib/ThemeContext'
 type Props = {
   email: string
   children: React.ReactNode
+  activeSection?: ShellSection
+  onNavigate?: (section: ShellSection) => void
 }
 
-const navItems = [
-  { icon: '/icons/habit.svg', label: 'My Habits' },
-  { icon: '/icons/profile.svg', label: 'View Profile' },
-  { icon: '/icons/stats.svg', label: 'View Stats' },
-  { icon: '/icons/calendar.svg', label: 'Calendar' },
-  { icon: '/icons/settings.svg', label: 'Settings' },
-]
+export type ShellSection = 'habits' | 'profile' | 'stats' | 'calendar' | 'settings'
 
-export default function AppShell({ email, children }: Props) {
+const navItems = [
+  { id: 'habits', icon: '/icons/habit.svg', label: 'My Habits' },
+  { id: 'profile', icon: '/icons/profile.svg', label: 'View Profile' },
+  { id: 'stats', icon: '/icons/stats.svg', label: 'View Stats' },
+  { id: 'calendar', icon: '/icons/calendar.svg', label: 'Calendar' },
+  { id: 'settings', icon: '/icons/settings.svg', label: 'Settings' },
+] satisfies Array<{ id: ShellSection; icon: string; label: string }>
+
+const sectionTitles: Record<ShellSection, string> = {
+  habits: 'My Habits',
+  profile: 'Profile',
+  stats: 'Stats',
+  calendar: 'Calendar',
+  settings: 'Settings',
+}
+
+export default function AppShell({ email, children, activeSection = 'habits', onNavigate }: Props) {
   const router = useRouter()
   const { dark, toggleTheme } = useTheme()
   const displayName = email.split('@')[0]
@@ -26,13 +38,13 @@ export default function AppShell({ email, children }: Props) {
 
   function handleLogout() {
     clearSession()
-    router.push('/login')
+    router.replace('/login')
   }
 
   return (
     <div className={`min-h-screen flex w-full overflow-x-hidden ${dark ? 'bg-[#32000c]' : 'bg-rose-50'}`}>
 
-      {/* SIDEBAR — desktop only */}
+      {/* SIDEBAR - desktop only */}
       <aside className={`hidden md:flex flex-col w-64 border-r fixed h-full z-20 shadow-2xl ${
         dark
           ? 'bg-pink-900 border-red-700 shadow-pink-900'
@@ -42,7 +54,7 @@ export default function AppShell({ email, children }: Props) {
 
         <div className={`px-6 py-5 border-b ${dark ? 'border-red-900' : 'border-rose-200'}`}>
           <h1 className={`text-xl font-bold ${dark ? 'text-white' : 'text-rose-700'}`}>
-            ⭐ Habit Tracker
+            Habit Tracker
           </h1>
         </div>
 
@@ -64,13 +76,22 @@ export default function AppShell({ email, children }: Props) {
           <p className={`text-xs font-semibold uppercase tracking-wider px-2 mb-3 ${dark ? 'text-pink-300' : 'text-rose-400'}`}>
             Menu
           </p>
-          {navItems.map(({ icon, label }) => (
+          {navItems.map(({ id, icon, label }) => (
             <button
+              type="button"
               key={label}
-              className={`w-full flex items-center gap-3 px-3 py-2 mb-1 rounded-lg text-sm font-medium transition focus:outline-none ${
-                dark
-                  ? 'text-pink-100 bg-pink-800 hover:bg-pink-700'
-                  : 'text-rose-700 hover:bg-rose-100'
+              data-testid={`nav-${id}`}
+              aria-label={label}
+              aria-current={activeSection === id ? 'page' : undefined}
+              onClick={() => onNavigate?.(id)}
+              className={`w-full cursor-pointer flex items-center gap-3 px-3 py-2 mb-1 rounded-lg text-sm font-medium transition focus:outline-none focus:ring-2 ${
+                activeSection === id && dark
+                  ? 'text-white bg-pink-700 focus:ring-pink-500'
+                  : activeSection === id
+                    ? 'text-rose-900 bg-rose-100 focus:ring-rose-300'
+                    : dark
+                  ? 'text-pink-100 bg-pink-800 hover:bg-pink-700 focus:ring-pink-500'
+                  : 'text-rose-700 hover:bg-rose-100 focus:ring-rose-300'
               }`}
             >
               <Image
@@ -80,7 +101,7 @@ export default function AppShell({ email, children }: Props) {
                 height={18}
                 className={`shrink-0 `}
               />
-              {label}
+              <span>{label}</span>
             </button>
           ))}
         </nav>
@@ -90,10 +111,11 @@ export default function AppShell({ email, children }: Props) {
           <button
             type="button"
             onClick={toggleTheme}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition focus:outline-none ${
+            aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+            className={`w-full cursor-pointer flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition focus:outline-none focus:ring-2 ${
               dark
-                ? 'text-pink-200 hover:bg-pink-800'
-                : 'text-gray-600 hover:bg-rose-100'
+                ? 'text-pink-200 hover:bg-pink-800 focus:ring-pink-500'
+                : 'text-gray-600 hover:bg-rose-100 focus:ring-rose-300'
             }`}
           >
             <Image
@@ -109,10 +131,10 @@ export default function AppShell({ email, children }: Props) {
             type="button"
             data-testid="auth-logout-button"
             onClick={handleLogout}
-            className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm border transition focus:outline-none ${
+            className={`w-full cursor-pointer flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm border transition focus:outline-none focus:ring-2 ${
               dark
-                ? 'border-red-800 text-gray-400 hover:text-red-400 hover:bg-red-950'
-                : 'border-rose-300 text-gray-500 hover:text-red-500 hover:bg-red-50'
+                ? 'border-red-800 text-gray-400 hover:text-red-400 hover:bg-red-950 focus:ring-red-500'
+                : 'border-rose-300 text-gray-500 hover:text-red-500 hover:bg-red-50 focus:ring-rose-300'
             }`}
           >
             
@@ -132,13 +154,13 @@ export default function AppShell({ email, children }: Props) {
         }`}>
           <div className="px-4 py-3 flex items-center justify-between">
             <h1 className={`text-lg font-bold ${dark ? 'text-white' : 'text-rose-700'}`}>
-              ⭐ Habit Tracker
+              Habit Tracker
             </h1>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={toggleTheme}
-                className="focus:outline-none"
+                className="cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-rose-300"
                 aria-label="Toggle theme"
               >
                 <Image
@@ -158,8 +180,8 @@ export default function AppShell({ email, children }: Props) {
                 type="button"
                 data-testid="auth-logout-button"
                 onClick={handleLogout}
-                className={`text-sm transition focus:outline-none ${
-                  dark ? 'text-gray-300 hover:text-red-400' : 'text-gray-500 hover:text-red-500'
+                className={`cursor-pointer rounded-md px-1 py-0.5 text-sm transition focus:outline-none focus:ring-2 ${
+                  dark ? 'text-gray-300 hover:text-red-400 focus:ring-red-500' : 'text-gray-500 hover:text-red-500 focus:ring-rose-300'
                 }`}
               >
                 Log out
@@ -170,6 +192,7 @@ export default function AppShell({ email, children }: Props) {
 
         
         <main className="flex-1 w-full min-w-0 px-4 py-6 max-w-2xl mx-auto">
+          <h2 className="sr-only">{sectionTitles[activeSection]}</h2>
           {children}
         </main>
       </div>

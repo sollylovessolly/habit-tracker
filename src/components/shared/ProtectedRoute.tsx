@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { startTransition, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSession } from '@/lib/storage'
 
@@ -17,7 +17,7 @@ export default function ProtectedRoute({ children }: Props) {
     if (!session) {
       router.push('/login')
     } else {
-      setAuthorized(true)
+      startTransition(() => setAuthorized(true))
     }
   }, [router])
 
